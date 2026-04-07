@@ -11,32 +11,32 @@
     </div>
     <button class="btn-refresh" (click)="loadData()" [disabled]="loading()">
       <span *ngIf="!loading()">&#x21BB; Run Agents</span>
-      <span *ngIf="loading()">Running&#x2026;</span>
+      <span *ngIf="loading()">Running&hellip;</span>
     </button>
   </header>
 
-  <!-- Agent Pipeline Status -->
+  <!-- Agent Pipeline -->
   <div class="pipeline" *ngIf="!loading()">
     <div class="pipeline-step" [class.step-active]="!!result()">
       <span class="step-icon">&#x2699;</span>
       <div>
         <div class="step-title">OrchestrationAgent</div>
         <div class="step-desc" *ngIf="result()">{{ result()!.orchestration_summary }}</div>
-        <div class="step-desc" *ngIf="!result()">Reads all SourceDataV1 data &rarr; unified source of truth</div>
+        <div class="step-desc" *ngIf="!result()">Reads all SourceDataV1 &rarr; unified source of truth</div>
       </div>
     </div>
     <div class="pipeline-arrow">&#x2192;</div>
     <div class="pipeline-step" [class.step-active]="!!result()">
-      <span class="step-icon">&#x1F3AF;</span>
+      <span class="step-icon">&#x25CE;</span>
       <div>
         <div class="step-title">ScoringAgent</div>
         <div class="step-desc" *ngIf="result()">{{ result()!.summary }}</div>
-        <div class="step-desc" *ngIf="!result()">Rule: enrolled 8+ weeks, zero redemptions &rarr; high risk</div>
+        <div class="step-desc" *ngIf="!result()">Applies 4 retention rules &rarr; high-risk customers</div>
       </div>
     </div>
     <div class="pipeline-arrow" *ngIf="result()">&#x2192;</div>
     <div class="pipeline-step step-mode" *ngIf="result()">
-      <span class="step-icon">{{ result()!.agent_mode === 'claude' ? '&#x1F916;' : '&#x26D9;' }}</span>
+      <span class="step-icon">&#x25C6;</span>
       <div>
         <div class="step-title">{{ result()!.agent_mode === 'claude' ? 'Claude AI' : 'Rule Engine' }}</div>
         <div class="step-desc">Agent mode</div>
@@ -51,7 +51,7 @@
   <div class="loading-state" *ngIf="loading()">
     <div class="spinner"></div>
     <p>OrchestrationAgent consolidating data&hellip;</p>
-    <p class="step-hint">Then ScoringAgent will apply the retention rule&hellip;</p>
+    <p class="step-hint">ScoringAgent applying retention rules&hellip;</p>
   </div>
 
   <ng-container *ngIf="!loading() && result()">
@@ -78,95 +78,161 @@
         <span class="sc-value">{{ result()!.total_sources | number }}</span>
         <span class="sc-label">Records Analyzed</span>
       </div>
-      <div class="stat-card">
-        <span class="sc-value">{{ filteredCustomers().length }}</span>
-        <span class="sc-label">Showing</span>
+      <div class="stat-card stat-sent">
+        <span class="sc-value">{{ campaignsSentCount() }}</span>
+        <span class="sc-label">Groups Notified</span>
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="filters">
-      <input
-        class="search-input"
-        type="text"
-        placeholder="Search by customer ID, segment, status&hellip;"
-        [value]="searchTerm()"
-        (input)="searchTerm.set($any($event.target).value)"
-      />
-      <div class="filter-group">
-        <span class="filter-label">Tier</span>
-        <button *ngFor="let t of tiers()" class="filter-btn"
-          [class.active]="filterTier() === t" (click)="filterTier.set(t)">{{ t }}</button>
-      </div>
-      <div class="filter-group">
-        <span class="filter-label">Risk</span>
-        <button *ngFor="let r of ['All','Critical','High','Medium']" class="filter-btn"
-          [class.active]="filterRisk() === r" (click)="filterRisk.set(r)">{{ r }}</button>
-      </div>
+    <!-- Scoring Rules Legend -->
+    <div class="rules-bar">
+      <span class="rules-label">Scoring Rules:</span>
+      <span class="rule-chip chip-indigo">Zero Redemptions (8+ weeks)</span>
+      <span class="rule-chip chip-amber">2 Tickets / 90 days &amp; 1 Unresolved 6+ days</span>
+      <span class="rule-chip chip-red">AOV Down 34%+ over 6 months</span>
+      <span class="rule-chip chip-orange">3 of last 5 orders used discount codes</span>
     </div>
 
-    <!-- Table -->
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th (click)="sortBy('customer_id')">Customer ID {{ sortIcon('customer_id') }}</th>
-            <th (click)="sortBy('loyalty_tier')">Tier {{ sortIcon('loyalty_tier') }}</th>
-            <th (click)="sortBy('weeks_since_enrollment')">Weeks Enrolled {{ sortIcon('weeks_since_enrollment') }}</th>
-            <th (click)="sortBy('points_accrued')">Points Accrued {{ sortIcon('points_accrued') }}</th>
-            <th (click)="sortBy('segment')">Segment {{ sortIcon('segment') }}</th>
-            <th (click)="sortBy('engagement_score')">Engagement {{ sortIcon('engagement_score') }}</th>
-            <th (click)="sortBy('email_open_rate_pct')">Email Open% {{ sortIcon('email_open_rate_pct') }}</th>
-            <th (click)="sortBy('total_orders')">Orders {{ sortIcon('total_orders') }}</th>
-            <th (click)="sortBy('last_purchase_days_ago')">Last Purchase {{ sortIcon('last_purchase_days_ago') }}</th>
-            <th (click)="sortBy('unresolved_tickets')">Open Tickets {{ sortIcon('unresolved_tickets') }}</th>
-            <th (click)="sortBy('risk_score')">Risk Score {{ sortIcon('risk_score') }}</th>
-            <th>Risk Level</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let c of filteredCustomers()" [class]="'row-' + c.risk_level">
-            <td class="mono">{{ c.customer_id }}</td>
-            <td>
-              <span class="tier-badge" [class]="'tier-' + c.loyalty_tier.toLowerCase()">
-                {{ c.loyalty_tier }}
-              </span>
-            </td>
-            <td>{{ c.weeks_since_enrollment }}w</td>
-            <td>{{ c.points_accrued | number }}</td>
-            <td>{{ c.segment || '&mdash;' }}</td>
-            <td>{{ c.engagement_score ?? '&mdash;' }}</td>
-            <td>
-              <span *ngIf="c.email_open_rate_pct !== null && c.email_open_rate_pct !== undefined"
-                    [class.low-rate]="(c.email_open_rate_pct ?? 0) < 10">
-                {{ c.email_open_rate_pct }}%
-              </span>
-              <span *ngIf="c.email_open_rate_pct === null || c.email_open_rate_pct === undefined" class="na">&mdash;</span>
-            </td>
-            <td>{{ c.total_orders ?? '&mdash;' }}</td>
-            <td>
-              <span *ngIf="c.last_purchase_days_ago !== null && c.last_purchase_days_ago !== undefined">
-                {{ c.last_purchase_days_ago }}d ago
-              </span>
-              <span *ngIf="c.last_purchase_days_ago === null || c.last_purchase_days_ago === undefined" class="na">&mdash;</span>
-            </td>
-            <td>
-              <span *ngIf="(c.unresolved_tickets ?? 0) > 0" class="tickets-badge">
-                {{ c.unresolved_tickets }}
-              </span>
-              <span *ngIf="!(c.unresolved_tickets ?? 0)" class="na">0</span>
-            </td>
-            <td class="score">{{ c.risk_score }}</td>
-            <td>
-              <span class="risk-badge" [class]="'risk-' + c.risk_level">
-                {{ c.risk_level | titlecase }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="row-count">{{ filteredCustomers().length }} of {{ result()!.customers.length }} customers</p>
+    <!-- Search -->
+    <div class="search-bar">
+      <input class="search-input" type="text" placeholder="Search customers&hellip;"
+        [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)" />
+    </div>
+
+    <!-- ── Risk Groups ─────────────────────────────────────────────── -->
+    <div class="groups-wrapper">
+      <div class="risk-group" *ngFor="let level of riskGroups"
+           [class.group--empty]="!groupedCustomers()[level]?.length">
+
+        <!-- Group Header -->
+        <div class="group-header" [style.border-left-color]="riskColors[level]">
+          <div class="group-title-row">
+            <span class="group-dot" [style.background]="riskColors[level]"></span>
+            <span class="group-title" [style.color]="riskColors[level]">
+              {{ riskLabels[level] }} Risk
+            </span>
+            <span class="group-count">{{ groupedCustomers()[level]?.length ?? 0 }} customers</span>
+          </div>
+          <button class="btn-campaign"
+            [class.btn-campaign--sent]="isGroupSent(level)"
+            [disabled]="isGroupSent(level) || !groupedCustomers()[level]?.length"
+            (click)="openModal(level)">
+            <span *ngIf="!isGroupSent(level)">Approve &amp; Send Campaign</span>
+            <span *ngIf="isGroupSent(level)">&#x2713; Campaign Sent</span>
+          </button>
+        </div>
+
+        <!-- Group Table -->
+        <div class="table-wrapper" *ngIf="groupedCustomers()[level]?.length">
+          <table>
+            <thead>
+              <tr>
+                <th (click)="sortBy('customer_id')">Customer {{ sortIcon('customer_id') }}</th>
+                <th (click)="sortBy('loyalty_tier')">Tier {{ sortIcon('loyalty_tier') }}</th>
+                <th (click)="sortBy('weeks_since_enrollment')">Wks Enrolled {{ sortIcon('weeks_since_enrollment') }}</th>
+                <th (click)="sortBy('points_accrued')">Points {{ sortIcon('points_accrued') }}</th>
+                <th (click)="sortBy('segment')">Segment {{ sortIcon('segment') }}</th>
+                <th (click)="sortBy('email_open_rate_pct')">Email Open% {{ sortIcon('email_open_rate_pct') }}</th>
+                <th (click)="sortBy('last_purchase_days_ago')">Last Purchase {{ sortIcon('last_purchase_days_ago') }}</th>
+                <th (click)="sortBy('unresolved_tickets')">Open Tickets {{ sortIcon('unresolved_tickets') }}</th>
+                <th (click)="sortBy('risk_score')">Score {{ sortIcon('risk_score') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of groupedCustomers()[level]" [class]="'row-' + c.risk_level">
+                <td class="mono">{{ c.customer_id }}</td>
+                <td>
+                  <span class="tier-badge" [class]="'tier-' + c.loyalty_tier.toLowerCase()">
+                    {{ c.loyalty_tier }}
+                  </span>
+                </td>
+                <td>{{ c.weeks_since_enrollment }}w</td>
+                <td>{{ c.points_accrued | number }}</td>
+                <td>{{ c.segment || '&mdash;' }}</td>
+                <td>
+                  <span *ngIf="c.email_open_rate_pct !== null && c.email_open_rate_pct !== undefined"
+                        [class.low-rate]="(c.email_open_rate_pct ?? 0) < 10">
+                    {{ c.email_open_rate_pct }}%
+                  </span>
+                  <span *ngIf="c.email_open_rate_pct === null || c.email_open_rate_pct === undefined" class="na">&mdash;</span>
+                </td>
+                <td>
+                  <span *ngIf="c.last_purchase_days_ago !== null && c.last_purchase_days_ago !== undefined">
+                    {{ c.last_purchase_days_ago }}d ago
+                  </span>
+                  <span *ngIf="c.last_purchase_days_ago === null || c.last_purchase_days_ago === undefined" class="na">&mdash;</span>
+                </td>
+                <td>
+                  <span *ngIf="(c.unresolved_tickets ?? 0) > 0" class="tickets-badge">{{ c.unresolved_tickets }}</span>
+                  <span *ngIf="!(c.unresolved_tickets ?? 0)" class="na">0</span>
+                </td>
+                <td class="score">{{ c.risk_score }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="group-empty" *ngIf="!groupedCustomers()[level]?.length">
+          No {{ riskLabels[level].toLowerCase() }}-risk customers match the current search.
+        </div>
+      </div>
     </div>
 
   </ng-container>
+
+  <!-- ── Confirmation Modal ───────────────────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="modal()" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header" [style.border-color]="riskColors[modal()!.riskLevel]">
+        <span class="modal-icon" [style.color]="riskColors[modal()!.riskLevel]">&#x26A0;</span>
+        <div>
+          <div class="modal-title">Send Campaign &mdash; {{ riskLabels[modal()!.riskLevel] }} Risk</div>
+          <div class="modal-subtitle">{{ modal()!.customers.length }} customers will be notified</div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-risk-msg">{{ riskMessages[modal()!.riskLevel] }}</div>
+
+        <div class="modal-notification-preview">
+          <div class="preview-label">Notification Message</div>
+          <div class="preview-box">"You are our valuable customer"</div>
+        </div>
+
+        <div class="modal-customer-list">
+          <div class="list-label">Customers included ({{ modal()!.customers.length }})</div>
+          <div class="customer-chips">
+            <span *ngFor="let c of modal()!.customers | slice:0:12" class="customer-chip">
+              {{ c.customer_id }}
+            </span>
+            <span *ngIf="modal()!.customers.length > 12" class="customer-chip chip-more">
+              +{{ modal()!.customers.length - 12 }} more
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+        <button class="btn-confirm" (click)="confirmSend()">
+          Confirm &amp; Send Campaign
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toast Stack ──────────────────────────────────────────────── -->
+  <div class="toast-stack">
+    <div class="toast" *ngFor="let toast of toasts()">
+      <div class="toast-header">
+        <span class="toast-icon">&#x2713;</span>
+        <span class="toast-title">
+          {{ riskLabels[toast.riskLevel] }} Risk Campaign Sent &mdash; {{ toast.count }} customers
+        </span>
+        <button class="toast-close" (click)="dismissToast(toast.id)">&#x2715;</button>
+      </div>
+      <div class="toast-body">"You are our valuable customer"</div>
+    </div>
+  </div>
+
 </div>
