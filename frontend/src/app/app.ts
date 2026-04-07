@@ -3,11 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoyaltyService, HighRiskCustomer, PipelineResult } from './loyalty.service';
 
-const CAMPAIGN_MESSAGE = 'You are our valuable customer';
-
 export interface ConfirmModal {
   riskLevel: string;
   customers: HighRiskCustomer[];
+}
+
+export interface GroupStats {
+  avgWeeksEnrolled: number;
+  avgPointsAccrued: number;
+  avgLifetimeValue: number;
 }
 
 export interface Toast {
@@ -140,6 +144,19 @@ export class App implements OnInit {
   }
 
   campaignsSentCount = computed(() => this.sentGroups().size);
+
+  /** Aggregate stats for the modal's customer group. */
+  modalStats = computed<GroupStats | null>(() => {
+    const customers = this.modal()?.customers;
+    if (!customers?.length) return null;
+    const avg = (fn: (c: HighRiskCustomer) => number) =>
+      Math.round(customers.reduce((s, c) => s + (fn(c) ?? 0), 0) / customers.length);
+    return {
+      avgWeeksEnrolled: avg(c => c.weeks_since_enrollment),
+      avgPointsAccrued: avg(c => c.points_accrued),
+      avgLifetimeValue: avg(c => c.total_spend ?? 0),
+    };
+  });
 
   // ── Modal ──────────────────────────────────────────────────────────
   openModal(riskLevel: string) {

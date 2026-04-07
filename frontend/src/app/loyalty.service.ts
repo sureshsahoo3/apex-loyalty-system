@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface HighRiskCustomer {
   customer_id: string;
@@ -49,7 +50,7 @@ export interface PipelineResult {
 @Injectable({ providedIn: 'root' })
 export class LoyaltyService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:8080';
+  private baseUrl = environment.apiUrl;
 
   getHighRiskCustomers(): Observable<PipelineResult> {
     return this.http.get<PipelineResult>(`${this.baseUrl}/api/high-risk-customers`);

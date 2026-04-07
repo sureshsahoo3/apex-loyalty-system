@@ -1,5 +1,5 @@
 # apex-loyalty-system
-Apex Retail: AI Agent Retention Solution
+Apex Retail: **Customer Retention Solution**
 ## OrchestrationAgent
 OrchestrationAgent(python) will read all the data from SourceDataV1 folder and consolidate them to one source of truth.
 ## ScoringAgent
@@ -9,8 +9,15 @@ ScoringAgent(python) will read the output of the OrchestrationAgent data and ana
 - Average order value down 34% over 6 months
 - 3 of last 5 orders used discount codes
 ## UI
-- Group the data based on the risk level add a button consolidated button for each risk level group(approve and send Caampaign) to send notification with below details. Before sending popup should appear.
-  - You are our valuable customer
+- Group the data based on the risk level add a button consolidated button for each risk level group(approve and send Caampaign) to send notification with below details. Before sending popup should appear with below message.
+   **High-value customer not activating loyalty benefits
+•Enrolled 8 weeks ago in StyleCircle Rewards
+•420 points accrued
+•0 redemptions
+•Lifetime value: $1,200**
+- Use the css from styles folder
 ## Technology Stack
 - Angular as UI
 - Python as backend
+## Deployment
+- Deployment scripts to deploy to azure and expose the url to invoke

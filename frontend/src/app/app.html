@@ -6,7 +6,7 @@
       <span class="logo">&#x2B21;</span>
       <div>
         <h1>Apex Retail</h1>
-        <p>AI Agent Retention Solution</p>
+        <p>Customer Retention Solution</p>
       </div>
     </div>
     <button class="btn-refresh" (click)="loadData()" [disabled]="loading()">
@@ -82,15 +82,6 @@
         <span class="sc-value">{{ campaignsSentCount() }}</span>
         <span class="sc-label">Groups Notified</span>
       </div>
-    </div>
-
-    <!-- Scoring Rules Legend -->
-    <div class="rules-bar">
-      <span class="rules-label">Scoring Rules:</span>
-      <span class="rule-chip chip-indigo">Zero Redemptions (8+ weeks)</span>
-      <span class="rule-chip chip-amber">2 Tickets / 90 days &amp; 1 Unresolved 6+ days</span>
-      <span class="rule-chip chip-red">AOV Down 34%+ over 6 months</span>
-      <span class="rule-chip chip-orange">3 of last 5 orders used discount codes</span>
     </div>
 
     <!-- Search -->
@@ -192,11 +183,18 @@
       </div>
 
       <div class="modal-body">
-        <div class="modal-risk-msg">{{ riskMessages[modal()!.riskLevel] }}</div>
 
         <div class="modal-notification-preview">
-          <div class="preview-label">Notification Message</div>
-          <div class="preview-box">"You are our valuable customer"</div>
+          <div class="preview-label">Notification Message Preview</div>
+          <div class="preview-box" *ngIf="modalStats()">
+            <p class="preview-headline">High-value customer not activating loyalty benefits</p>
+            <ul class="preview-bullets">
+              <li>Enrolled {{ modalStats()!.avgWeeksEnrolled }} weeks ago in StyleCircle Rewards</li>
+              <li>{{ modalStats()!.avgPointsAccrued | number }} points accrued</li>
+              <li>0 redemptions</li>
+              <li>Lifetime value: ${{ modalStats()!.avgLifetimeValue | number }}</li>
+            </ul>
+          </div>
         </div>
 
         <div class="modal-customer-list">
@@ -231,7 +229,7 @@
         </span>
         <button class="toast-close" (click)="dismissToast(toast.id)">&#x2715;</button>
       </div>
-      <div class="toast-body">"You are our valuable customer"</div>
+      <div class="toast-body">High-value customer not activating loyalty benefits</div>
     </div>
   </div>
 
