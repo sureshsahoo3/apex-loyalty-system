@@ -1,0 +1,190 @@
+/* ── Shell ──────────────────────────────────────────────────────── */
+.shell {
+  min-height: 100vh;
+  background: #0d0f1a;
+  color: #e2e8f0;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: #12152a;
+  border-bottom: 1px solid #1e2440;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo { font-size: 30px; color: #6366f1; line-height: 1; }
+.header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
+.header p  { margin: 0; font-size: 12px; color: #64748b; }
+
+.btn-refresh {
+  padding: 8px 20px;
+  background: #6366f1;
+  color: #fff;
+  border: none; border-radius: 6px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-refresh:hover:not(:disabled) { background: #4f46e5; }
+.btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Pipeline ───────────────────────────────────────────────────── */
+.pipeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 28px;
+  background: #12152a;
+  border-bottom: 1px solid #1e2440;
+  flex-wrap: wrap;
+}
+.pipeline-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #1a1e35;
+  border: 1px solid #252b45;
+  border-radius: 8px;
+  padding: 10px 14px;
+  max-width: 340px;
+  flex: 1;
+  min-width: 200px;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.pipeline-step.step-active { opacity: 1; border-color: #6366f1; }
+.step-mode { max-width: 160px; }
+.step-icon { font-size: 20px; line-height: 1.2; }
+.step-title { font-size: 13px; font-weight: 600; color: #c7d2fe; }
+.step-desc  { font-size: 11px; color: #64748b; margin-top: 3px; line-height: 1.5; }
+.pipeline-arrow {
+  font-size: 20px; color: #374151;
+  align-self: center; padding: 0 4px;
+}
+
+/* ── Error ──────────────────────────────────────────────────────── */
+.error-banner {
+  margin: 16px 28px;
+  padding: 12px 16px;
+  background: #3b1219;
+  border: 1px solid #7f1d1d;
+  border-radius: 8px;
+  color: #fca5a5;
+}
+
+/* ── Loading ────────────────────────────────────────────────────── */
+.loading-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 0; gap: 12px; color: #64748b;
+}
+.step-hint { font-size: 12px; color: #374151; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #1e2440;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Stats Row ──────────────────────────────────────────────────── */
+.stats-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px 28px;
+  flex-wrap: wrap;
+}
+.stat-card {
+  display: flex; flex-direction: column;
+  background: #12152a;
+  border: 1px solid #1e2440;
+  border-radius: 8px;
+  padding: 12px 18px;
+  min-width: 110px;
+}
+.sc-value { font-size: 24px; font-weight: 700; color: #fff; }
+.sc-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.stat-critical .sc-value { color: #f87171; }
+.stat-high .sc-value     { color: #fb923c; }
+.stat-medium .sc-value   { color: #facc15; }
+
+/* ── Filters ────────────────────────────────────────────────────── */
+.filters {
+  display: flex; align-items: center;
+  gap: 16px; padding: 12px 28px;
+  border-bottom: 1px solid #1a1e30; flex-wrap: wrap;
+}
+.search-input {
+  padding: 8px 14px;
+  background: #1a1e30; border: 1px solid #252b45;
+  border-radius: 6px; color: #e2e8f0;
+  font-size: 13px; width: 280px; outline: none;
+}
+.search-input:focus { border-color: #6366f1; }
+.filter-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.filter-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+.filter-btn {
+  padding: 4px 12px; border-radius: 16px;
+  border: 1px solid #252b45; background: transparent;
+  color: #94a3b8; cursor: pointer; font-size: 12px;
+  transition: all 0.15s;
+}
+.filter-btn.active, .filter-btn:hover {
+  background: #6366f1; border-color: #6366f1; color: #fff;
+}
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.table-wrapper { padding: 0 28px 28px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+thead tr { background: #12152a; border-bottom: 2px solid #1e2440; }
+th {
+  padding: 10px 12px; text-align: left;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: #64748b; cursor: pointer; white-space: nowrap; user-select: none;
+}
+th:hover { color: #e2e8f0; }
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #161a28;
+  vertical-align: middle;
+}
+tbody tr:hover { background: #12152a; }
+.row-critical { background: rgba(239,68,68,0.06); }
+.row-high     { background: rgba(249,115,22,0.05); }
+
+/* ── Badges ─────────────────────────────────────────────────────── */
+.tier-badge {
+  padding: 2px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+}
+.tier-platinum { background: #1e2d4a; color: #93c5fd; }
+.tier-gold     { background: #2d2410; color: #fbbf24; }
+.tier-silver   { background: #1e2440; color: #94a3b8; }
+.tier-bronze   { background: #2a1a0f; color: #fb923c; }
+
+.risk-badge {
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 700;
+}
+.risk-critical { background: #3b0f0f; color: #f87171; }
+.risk-high     { background: #2c1708; color: #fb923c; }
+.risk-medium   { background: #201e05; color: #facc15; }
+
+.tickets-badge {
+  display: inline-block;
+  padding: 1px 8px; border-radius: 10px;
+  background: #2c1708; color: #fb923c;
+  font-size: 11px; font-weight: 700;
+}
+
+/* ── Misc ───────────────────────────────────────────────────────── */
+.mono     { font-family: 'Courier New', monospace; font-size: 12px; color: #818cf8; }
+.na       { color: #374151; }
+.low-rate { color: #f87171; }
+.score    { font-weight: 700; color: #94a3b8; }
+.row-count { margin-top: 12px; font-size: 12px; color: #374151; text-align: right; }
